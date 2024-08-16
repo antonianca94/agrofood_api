@@ -6,14 +6,14 @@ const swaggerSetup = require('./docs/swagger');
 
 
 // Middleware para monitorar o endpoint e o tempo da requisição
-// app.use((req, res, next) => {
-//     const start = Date.now();
-//     res.on('finish', () => {
-//         const duration = Date.now() - start;
-//         console.log(`Endpoint: ${req.method} ${req.originalUrl} | Tempo de execução: ${duration}ms`);
-//     });
-//     next();
-// });
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        console.log(`Endpoint: ${req.method} ${req.originalUrl} | Tempo de execução: ${duration}ms`);
+    });
+    next();
+});
 
 // REQUIRE ROTAS
 const productRoutes = require('./routes/productRoutes');

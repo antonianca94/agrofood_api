@@ -28,6 +28,40 @@ exports.getAllProducts = async (req, res) => {
     }
 };
 
+exports.getAllProductsByUserId = async (req, res) => {
+    try {
+        let products;
+        const userId = parseInt(req.params.user_id); // Obtém o user_id do parâmetro de rota
+
+        // Consulta para listar os produtos associados ao user_id
+        const [rows] = await db.query(
+            `SELECT 
+                p.id, 
+                p.sku, 
+                p.name, 
+                p.price, 
+                p.quantity, 
+                cp.name AS category_name 
+            FROM products p
+            INNER JOIN categories_products cp 
+                ON p.categories_products_id = cp.id
+            WHERE p.users_id = ?`,
+            [userId]
+        );
+        products = rows;
+
+        res.json({
+            success: true,
+            data: products,
+        });
+
+    } catch (error) {
+        console.error(error); // Log do erro para diagnóstico
+        res.status(500).json({ error: 'Erro ao buscar produtos' });
+    }
+};
+
+
 exports.getProductBySku = async (req, res) => {
     const sku = req.params.sku;
     try {

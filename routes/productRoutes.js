@@ -27,6 +27,43 @@ const productController = require('../controllers/productController');
  */
 router.get('/', productController.getAllProducts);
 
+// Rota para listar produtos com base no user_id
+/**
+ * @swagger
+ * /products/user_id/{user_id}:
+ *   get:
+ *     summary: Retorna a lista de produtos filtrados pelo user_id do usuário
+ *     parameters:
+ *       - in: path
+ *         name: user_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Lista de produtos filtrados
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   sku:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                   price:
+ *                     type: number
+ *                   quantity:
+ *                     type: string
+ *                   category_name:
+ *                     type: string
+ */
+router.get('/user_id/:user_id', productController.getAllProductsByUserId);
+
 // Rota para obter um produto específico
 /**
  * @swagger
