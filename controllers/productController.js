@@ -1,22 +1,16 @@
 const db = require('../config/database');
 
-exports.getAllProducts = async (req, res) => {
+exports.getAllProductsHome = async (req, res) => {
     try {
-        let products;
-
-        const [rows] = await db.query(
-            `SELECT 
-                products.id, 
-                products.sku, 
-                products.name, 
-                products.price, 
-                products.quantity, 
-                categories_products.name AS category_name 
-            FROM products 
-            INNER JOIN categories_products 
-            ON products.categories_products_id = categories_products.id`
-        );
-        products = rows;
+        const productsQuery = `
+            SELECT p.*, i.path AS imagePath
+            FROM products p
+            LEFT JOIN images i ON p.id = i.products_id
+            WHERE i.type = 'featured_image'
+        `;
+        
+        const [rows] = await db.query(productsQuery);
+        const products = rows;
         
         res.json({
             success: true,
@@ -24,6 +18,28 @@ exports.getAllProducts = async (req, res) => {
         });
 
     } catch (error) {
+        console.error('Erro ao buscar produtos:', error);
+        res.status(500).json({ error: 'Erro ao buscar produtos' });
+    }
+};
+
+exports.getAllProducts = async (req, res) => {
+    try {
+        const productsQuery = `
+            SELECT id, sku, name, price, quantity
+            FROM products
+        `;
+        
+        const [rows] = await db.query(productsQuery);
+        const products = rows;
+        
+        res.json({
+            success: true,
+            data: products,
+        });
+
+    } catch (error) {
+        console.error('Erro ao buscar produtos:', error);
         res.status(500).json({ error: 'Erro ao buscar produtos' });
     }
 };
