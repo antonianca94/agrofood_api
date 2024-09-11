@@ -2,52 +2,33 @@ const db = require('../config/database');
 
 exports.updateUserPartially = async (req, res) => {
     const { id } = req.params; // Obter o ID do usuário a partir dos parâmetros da rota
-    const { username, password, name, roles_id, cpf, surname } = req.body; // Obter os dados do corpo da requisição
+    const updates = ['username', 'password', 'name', 'surname', 'cpf', 'roles_id'];
+    
+    // Obter os dados do corpo da requisição
+    const values = updates
+        .filter(field => req.body[field]) // Filtra os campos que existem no corpo da requisição
+        .map(field => req.body[field]); // Mapeia os campos para os seus valores
 
     // Verifica se o ID foi enviado
     if (!id) {
         return res.status(400).json({ message: "ID do usuário é obrigatório" });
     }
 
-    // Array para armazenar os campos que precisam ser atualizados
-    const fieldsToUpdate = [];
-    const values = [];
-
-    // Adiciona os campos que estão presentes no body
-    if (username) {
-        fieldsToUpdate.push('username = ?');
-        values.push(username);
-    }
-    if (password) {
-        fieldsToUpdate.push('password = ?');
-        values.push(password);
-    }
-    if (name) {
-        fieldsToUpdate.push('name = ?');
-        values.push(name);
-    }
-    if (surname) {
-        fieldsToUpdate.push('surname = ?');
-        values.push(surname);
-    }
-    if (cpf) {
-        fieldsToUpdate.push('cpf = ?');
-        values.push(cpf);
-    }
-    if (roles_id) {
-        fieldsToUpdate.push('roles_id = ?');
-        values.push(roles_id);
-    }
-
     // Verifica se existe ao menos um campo para atualizar
-    if (fieldsToUpdate.length === 0) {
+    if (values.length === 0) {
         return res.status(400).json({ message: "Nenhum campo para atualizar" });
     }
+
+    // Cria a query dinamicamente
+    const fieldsToUpdate = updates
+        .filter(field => req.body[field]) // Filtra os campos que existem no corpo da requisição
+        .map(field => `${field} = ?`) // Cria a string para a query
+        .join(', '); // Junta os campos para a query
 
     // Adiciona o ID ao final da lista de valores
     values.push(id);
 
-    const query = `UPDATE users SET ${fieldsToUpdate.join(', ')} WHERE id = ?`;
+    const query = `UPDATE users SET ${fieldsToUpdate} WHERE id = ?`;
 
     try {
         // Executa a query com os campos e valores dinâmicos
@@ -63,6 +44,7 @@ exports.updateUserPartially = async (req, res) => {
         res.status(500).json({ error: "Erro ao atualizar o usuário: " + err.message });
     }
 };
+
 
 // Função para obter os detalhes do usuário a partir da view `user_details`
 exports.getUserDetailsById = async (req, res) => {
